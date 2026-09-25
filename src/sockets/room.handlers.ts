@@ -170,6 +170,7 @@ export function registerRoomHandlers(
         currentProfile.joinedActiveAt = now;
         currentProfile.removalsCount = 0;
         room.activeMembers.push(currentProfile);
+        setUserProfile(currentProfile);
         socket.emit('role-assigned', { role: 'active' });
       } else {
         const queueItem: QueueMember = {
@@ -207,16 +208,18 @@ export function registerRoomHandlers(
   socket.on('mute-toggle', ({ isMuted }: { isMuted: boolean }) => {
     const roomId = getCurrentRoomId();
     const profile = getUserProfile();
-    if (profile && roomId) {
+    if (roomId) {
       const room = getJunctionRoom(roomId);
       if (room) {
-        const member = findBySocket(room.activeMembers, profile.tag);
+        const member = room.activeMembers.find(
+          (m) => m.socketId === socket.id || (profile?.tag && String(m.tag) === String(profile.tag))
+        );
         if (member) {
           member.isMuted = isMuted;
           if (isMuted) member.isSpeaking = false;
           io.to(roomId).emit('peer-mute-changed', {
             socketId: socket.id,
-            tag: profile.tag,
+            tag: member.tag,
             isMuted,
             isSpeaking: member.isSpeaking
           });
@@ -230,10 +233,12 @@ export function registerRoomHandlers(
   socket.on('video-toggle', ({ isVideoEnabled }: { isVideoEnabled: boolean }) => {
     const roomId = getCurrentRoomId();
     const profile = getUserProfile();
-    if (profile && roomId) {
+    if (roomId) {
       const room = getJunctionRoom(roomId);
       if (room) {
-        const member = findBySocket(room.activeMembers, profile.tag);
+        const member = room.activeMembers.find(
+          (m) => m.socketId === socket.id || (profile?.tag && String(m.tag) === String(profile.tag))
+        );
         if (member) {
           member.isVideoEnabled = isVideoEnabled;
           broadcastRoomState(roomId);
@@ -246,10 +251,12 @@ export function registerRoomHandlers(
   socket.on('screen-share-toggle', ({ isScreenSharing }: { isScreenSharing: boolean }) => {
     const roomId = getCurrentRoomId();
     const profile = getUserProfile();
-    if (profile && roomId) {
+    if (roomId) {
       const room = getJunctionRoom(roomId);
       if (room) {
-        const member = findBySocket(room.activeMembers, profile.tag);
+        const member = room.activeMembers.find(
+          (m) => m.socketId === socket.id || (profile?.tag && String(m.tag) === String(profile.tag))
+        );
         if (member) {
           member.isScreenSharing = isScreenSharing;
           broadcastRoomState(roomId);
@@ -262,15 +269,17 @@ export function registerRoomHandlers(
   socket.on('speaking-state', ({ isSpeaking }: { isSpeaking: boolean }) => {
     const roomId = getCurrentRoomId();
     const profile = getUserProfile();
-    if (profile && roomId) {
+    if (roomId) {
       const room = getJunctionRoom(roomId);
       if (room) {
-        const member = findBySocket(room.activeMembers, profile.tag);
+        const member = room.activeMembers.find(
+          (m) => m.socketId === socket.id || (profile?.tag && String(m.tag) === String(profile.tag))
+        );
         if (member && !member.isMuted) {
           member.isSpeaking = isSpeaking;
           io.to(roomId).emit('peer-mute-changed', {
             socketId: socket.id,
-            tag: profile.tag,
+            tag: member.tag,
             isMuted: member.isMuted,
             isSpeaking: member.isSpeaking
           });

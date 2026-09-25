@@ -19,12 +19,12 @@ export const corsOptions: CorsOptions = {
 
     const cleanOrigin = origin.replace(/\/$/, '');
 
-    if (configuredOrigins.includes(cleanOrigin)) {
+    if (configuredOrigins.includes(cleanOrigin) || cleanOrigin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
 
     // In local development, also allow localhost
-    if (!isProduction && devOrigins.includes(cleanOrigin)) {
+    if (devOrigins.includes(cleanOrigin)) {
       return callback(null, true);
     }
 

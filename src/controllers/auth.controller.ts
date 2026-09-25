@@ -76,11 +76,12 @@ export function createAuthController() {
 
         const sessionPayload = formatUserSession(existingUser);
 
-        // Attach httpOnly cookie
-        attachSessionCookie(res, sessionPayload);
+        // Attach httpOnly cookie & return token for cross-domain headers
+        const token = attachSessionCookie(res, sessionPayload);
 
         return res.json({
           success: true,
+          token,
           user: sessionPayload,
           isBanned: !!existingUser?.isBanned
         });
@@ -122,10 +123,11 @@ export function createAuthController() {
 
         const sessionPayload = formatUserSession(existingUser!);
 
-        attachSessionCookie(res, sessionPayload);
+        const token = attachSessionCookie(res, sessionPayload);
 
         return res.json({
           success: true,
+          token,
           user: sessionPayload,
           isBanned: !!existingUser?.isBanned
         });
@@ -174,9 +176,9 @@ export function createAuthController() {
         await user.save();
 
         const updatedSession = formatUserSession(user);
-        attachSessionCookie(res, updatedSession);
+        const token = attachSessionCookie(res, updatedSession);
 
-        return res.json({ success: true, user: updatedSession });
+        return res.json({ success: true, token, user: updatedSession });
       } catch (err) {
         next(err);
       }
@@ -262,9 +264,9 @@ export function createAuthController() {
         await user.save();
 
         const updatedSession = formatUserSession(user);
-        attachSessionCookie(res, updatedSession);
+        const token = attachSessionCookie(res, updatedSession);
 
-        return res.json({ success: true, user: updatedSession });
+        return res.json({ success: true, token, user: updatedSession });
       } catch (err) {
         next(err);
       }
@@ -303,9 +305,9 @@ export function createAuthController() {
         await user.save();
 
         const updatedSession = formatUserSession(user);
-        attachSessionCookie(res, updatedSession);
+        const token = attachSessionCookie(res, updatedSession);
 
-        return res.json({ success: true, user: updatedSession });
+        return res.json({ success: true, token, user: updatedSession });
       } catch (err) {
         next(err);
       }

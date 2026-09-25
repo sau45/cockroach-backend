@@ -66,12 +66,14 @@ export function verifySessionToken(token: string): UserSession | null {
   }
 }
 
-export function attachSessionCookie(res: Response, session: UserSession): void {
+export function attachSessionCookie(res: Response, session: UserSession): string {
   const token = signSessionToken(session);
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
   });
+  return token;
 }
