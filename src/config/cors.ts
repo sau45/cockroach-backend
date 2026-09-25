@@ -12,24 +12,28 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g., curl, server-to-server health checks)
+    // Allow requests with no origin (e.g., curl, mobile apps, server-to-server health checks)
     if (!origin) {
       return callback(null, true);
     }
 
     const cleanOrigin = origin.replace(/\/$/, '');
 
-    if (configuredOrigins.includes(cleanOrigin) || cleanOrigin.endsWith('.vercel.app')) {
+    // In local development, permit all origins (any port on localhost, 127.0.0.1, LAN IPs, tunnels)
+    if (!isProduction) {
       return callback(null, true);
     }
 
-    // In local development, also allow localhost
-    if (devOrigins.includes(cleanOrigin)) {
+    if (
+      configuredOrigins.includes(cleanOrigin) ||
+      cleanOrigin.endsWith('.vercel.app') ||
+      devOrigins.includes(cleanOrigin)
+    ) {
       return callback(null, true);
     }
 
-    // Reject unknown origins in production
-    return callback(new Error(`CORS policy violation: Origin '${origin}' is not authorized.`));
+    // Reject unknown origins in production cleanly without throwing a 500 error
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -38,6 +42,8 @@ export const corsOptions: CorsOptions = {
     'Authorization',
     'x-admin-password',
     'x-device-fingerprint',
-    'x-author-tag'
+    'x-author-tag',
+    'Access-Control-Request-Private-Network',
+    'Access-Control-Allow-Private-Network'
   ]
 };

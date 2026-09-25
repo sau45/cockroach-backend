@@ -6,7 +6,7 @@ import * as roomsService from '../services/rooms.service.js';
 
 export function createRoomsController(io: Server) {
   const createRoomSchema = z.object({
-    topic: z.string().min(1, 'Room topic is required').max(50),
+    topic: z.string().min(1, 'Room topic is required').max(20, 'Room topic cannot exceed 20 characters'),
     password: z.string().min(1, 'Password is required to create a room').max(50)
   });
 

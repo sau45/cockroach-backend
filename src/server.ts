@@ -24,7 +24,14 @@ const io = initializeSocket(server);
 securityService.setSocketServer(io);
 
 // Security & Parsing Middleware
+app.use((req, res, next) => {
+  if (req.headers['access-control-request-private-network']) {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  }
+  next();
+});
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(

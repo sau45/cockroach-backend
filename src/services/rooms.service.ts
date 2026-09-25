@@ -322,7 +322,7 @@ export function buildRoomStatePayload(roomId: string, now: number = Date.now()):
 export function createCustomRoom(topic: string, password?: string): string {
   const roomId = 'temp-' + Math.random().toString(36).substring(2, 10);
   junctionRooms.set(roomId, {
-    name: topic.trim().substring(0, 50),
+    name: topic.trim().substring(0, 20),
     isCustom: true,
     password: password ? password.trim() : null,
     activeMembers: [],
